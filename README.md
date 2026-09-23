@@ -1,115 +1,87 @@
 # Van Cortlandt Park Bench Adoption
 
-A full-stack prototype for exploring park benches, requesting a dedication, joining a waitlist, and reviewing requests from a staff dashboard.
-
 Live site: [vancortlandpark.org](https://vancortlandpark.org)
 
-## What the site does
+This is my take-home for Columbia Software Solutions (option 2, Bench Adoption). The park has 500+ benches and no single place to see which ones are adopted, by whom, and for how long. This site is meant to be that place. Visitors can browse benches and request one, and staff can review those requests.
 
-- Displays 500 benches in a searchable list and on the official park map
-- Shows available, pending, and adopted states consistently
-- Lets visitors preview plaque text and request any duration from one month to 50 years
-- Sends confirmation and staff-notification emails through Resend
-- Adds a waitlist to pending or adopted benches
-- Lets staff approve, reject, renew, and export adoption requests
-- Lets staff correct approximate marker positions
-- Supports installation as a progressive web app and has an offline page
+It's a student prototype. It isn't affiliated with NYC Parks or the Van Cortlandt Park Alliance.
 
-No payment is collected. A submitted request remains pending until park staff reviews it.
+## What it does
 
-## Technology
+For visitors:
+- Browse all 500 benches as a list or on the park map, and search or filter by area and status
+- See who adopted a bench, their dedication, and when the adoption ends
+- Request an available bench for any length from 1 month to 50 years, with a preview of the plaque text
+- Join a waitlist for a bench that's already taken
 
-- Next.js, React, and TypeScript
-- Tailwind CSS
-- Cloudflare D1 with Drizzle ORM
-- Resend for transactional email
-- OpenAI Sites for hosting
+For staff (behind a login at `/staff`):
+- Approve or reject requests, handle renewals, and export adoptions
+- See the waitlist for each bench
+- Drag bench markers to fix their spots on the map
 
-## Project structure
+There's no payment, per the prompt.
 
-```text
-app/
-  api/                      Server routes for public and staff actions
-  contact/                  Contact page
-  renew/                    Renewal page
-  staff/                    Staff login and dashboard entry point
-components/
-  bench/                    Directory, map, and adoption request form
-  staff/                    Staff dashboard, login, and map editor
-  ui/                       Five shared interface primitives used by the app
-db/                         Database connection and schema
-drizzle/                    Applied database migrations
-lib/                        Bench data, email, authentication, and helpers
-public/                     Park images, map, icons, manifest, and service worker
-```
+## How an adoption works
 
-Next.js requires filenames such as `page.tsx`, `layout.tsx`, and `route.ts`. The descriptive folder names tell you what each of those framework files handles. Drizzle generated the migration filenames; they are intentionally unchanged so deployed database history remains valid.
+1. Someone picks an available bench and fills out the form.
+2. The server checks the input and makes sure the bench isn't already taken, then saves the request as **pending**.
+3. The person gets a confirmation email and staff get notified.
+4. Staff approve or reject it. A rejected request frees the bench. An approved one keeps it until the adoption expires or gets renewed.
 
-## Run locally
+## Assumptions
 
-Requirements: Node.js 22.13 or newer and pnpm.
+In a real project I'd confirm these with the park before building. Since I couldn't, here's what I went with:
+
+- **The bench data is made up.** I didn't have the park's real inventory, so the bench numbers, areas and existing adoptions are sample data (`lib/sample-inventory.ts`). It fills the directory in without writing fake rows to the database, and real records always take priority. With real data, I'd import the park's inventory and delete that file.
+- **An online request isn't a final adoption.** I assumed payment and plaque wording get sorted out offline, so everything starts as pending until staff approve it.
+- **One active adoption per bench.**
+- **Names and dedications are public, emails aren't.** The public API never returns donor emails.
+- **The photos are placeholders.**
+
+## Design decisions
+
+- **Benches live in code, adoptions live in the database.** The bench list barely changes, and adoptions are the data that actually changes, so only adoptions (plus waitlist entries and map positions) go in the database.
+- **Double-booking is blocked in two places.** The API checks first so it can show a clear error message. The database also has a unique constraint on `bench_id`, which catches the case where two people submit at the same moment and both pass the first check.
+- **Staff login is intentionally simple.** It's one username and password stored as environment variables, with a signed, HTTP-only cookie for the session. That's enough for a small staff team. A real deployment would want individual staff accounts.
+- **Basic spam protection.** Public forms have a hidden honeypot field, a check that rejects forms submitted too fast, and a limit of a few requests per email per day.
+- **I put extra time into the map.** When you're choosing a bench, where it is matters most, so the map felt worth it.
+
+## What I'd do next
+
+- Import the real bench inventory and GPS locations
+- Add real photos of each bench
+- Give each staff member their own account instead of one shared login
+- Add automated tests, especially for the double-booking case
+- Add payment if the park wanted to take it online
+
+## Tech
+
+Next.js, React and TypeScript, Tailwind CSS, Cloudflare D1 (SQLite) with Drizzle ORM, and Resend for email. It's hosted on OpenAI Sites.
+
+I used AI tools (ChatGPT) to speed up parts of the build. The decisions above are mine, and I tested the adoption flow end to end myself. Friends also tested the live site and caught a few bugs, which I fixed.
+
+## Running it locally
+
+You'll need Node.js 22.13+ and pnpm.
 
 ```bash
 corepack enable
 pnpm install
-cp .env.example .env.local
+cp .env.example .env.local   # fill in your own values
 pnpm dev
 ```
 
-The production build and code-quality checks are:
+`.env.example` lists the settings the app needs: the email API key and addresses, plus the staff username, password and session secret. The repo only has placeholders. Real values go in your environment and never get committed.
 
-```bash
-pnpm lint
-pnpm format:check
-pnpm build
-```
+## Where things are
 
-## Configuration
-
-Copy `.env.example` to `.env.local`, then provide:
-
-- `RESEND_API_KEY` — Resend API key
-- `EMAIL_FROM` — verified sender on the Resend domain
-- `EMAIL_REPLY_TO` — inbox that should receive replies
-- `STAFF_NOTIFICATION_EMAIL` — inbox for new requests and contact messages
-- `STAFF_USERNAME` and `STAFF_PASSWORD` — staff dashboard credentials
-- `STAFF_SESSION_SECRET` — long random value used to sign staff sessions
-
-The D1 binding is named `DB` and is supplied by the hosting environment.
-
-## Data model
-
-The main tables are:
-
-- `adoptions` — request status, donor details, dedication, duration, and confirmation code
-- `bench_locations` — staff-adjusted map coordinates
-- `waitlist_entries` — ordered interest for unavailable benches
-
-`lib/sample-inventory.ts` fills the prototype directory to a baseline of 200 adopted benches and 6 pending benches without inserting fictional records into D1. Real database records take priority. In a production handoff, this module would be removed after importing the park's authoritative inventory.
-
-## Request flow
-
-1. A visitor selects an available bench and submits a dedication request.
-2. The server validates the input, prevents duplicate active requests, and stores it as pending.
-3. Resend sends the visitor a confirmation and notifies staff.
-4. Staff approves or rejects the request from the protected dashboard.
-5. Rejected requests stop blocking the bench; approved requests remain unavailable until expiration or renewal.
-
-## Security notes
-
-- Staff credentials and email keys are environment variables, never browser code.
-- Staff sessions use an HTTP-only signed cookie.
-- Public forms include server-side validation, a timing check, a honeypot field, and basic submission limits.
-- The repository contains placeholders only. Do not commit real secrets.
-
-## Main files to discuss in a review
-
-- `components/bench/bench-directory.tsx` — visitor-facing search, filters, list, map, and bench dialog
-- `components/bench/adoption-request-form.tsx` — plaque preview and custom duration controls
-- `app/api/adoptions/route.ts` — public adoption read/write API and validation
-- `components/staff/staff-dashboard.tsx` — staff workflow
-- `lib/staff-auth.ts` — signed staff sessions
-- `lib/email.ts` — Resend email integration
-- `db/schema.ts` — persistent data model
-
-This is a portfolio prototype, not an official Van Cortlandt Park or Van Cortlandt Park Alliance service.
+| Path | What's there |
+| --- | --- |
+| `app/api/adoptions/route.ts` | Public API for reading and creating adoptions, including validation and the double-booking check |
+| `components/bench/bench-directory.tsx` | The main page: list, map, filters and the bench popup |
+| `components/bench/adoption-request-form.tsx` | The adoption form and plaque preview |
+| `components/staff/staff-dashboard.tsx` | Staff dashboard |
+| `lib/staff-auth.ts` | Staff login and signed session cookie |
+| `lib/email.ts` | Confirmation and staff-notification emails |
+| `db/schema.ts` | Database tables |
+| `drizzle/` | Database migrations. The odd filenames are auto-generated. |
