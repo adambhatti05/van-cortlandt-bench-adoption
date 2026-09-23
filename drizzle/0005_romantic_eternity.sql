@@ -1,0 +1,1 @@
+ALTER TABLE `bench_locations` ADD `layout_version` integer DEFAULT 1 NOT NULL;

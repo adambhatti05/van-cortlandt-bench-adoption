@@ -1,0 +1,13 @@
+dist
+.next
+.vinext
+.wrangler
+.sites-runtime
+node_modules
+outputs
+work
+build
+vendor
+drizzle
+public
+pnpm-lock.yaml

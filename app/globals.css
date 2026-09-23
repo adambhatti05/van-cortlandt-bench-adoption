@@ -1,0 +1,104 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "../vendor/shadcn-tailwind-4.13.0.css";
+
+:root {
+  --background: #f3f0e8;
+  --foreground: #17362d;
+  --card: #fffdf7;
+  --card-foreground: #17362d;
+  --popover: #fffdf7;
+  --popover-foreground: #17362d;
+  --primary: #174f3d;
+  --primary-foreground: #fffdf7;
+  --secondary: #e4eadf;
+  --secondary-foreground: #17362d;
+  --muted: #ebe8df;
+  --muted-foreground: #66746e;
+  --accent: #dbe9d6;
+  --accent-foreground: #17362d;
+  --destructive: #b63a2b;
+  --border: #d8d6cb;
+  --input: #d8d6cb;
+  --ring: #2d6f57;
+  --radius: 0.9rem;
+}
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 5px);
+  --font-sans: "Avenir Next", Avenir, "Segoe UI", sans-serif;
+}
+* {
+  border-color: var(--border);
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--foreground);
+  font-family: "Avenir Next", Avenir, "Segoe UI", sans-serif;
+  background:
+    radial-gradient(
+      circle at 9% 5%,
+      rgba(255, 255, 255, 0.84),
+      transparent 24rem
+    ),
+    linear-gradient(180deg, #f7f4ec 0%, #efede4 100%);
+}
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+::selection {
+  background: #c4dac9;
+  color: #17362d;
+}
+.paper-grid {
+  background-image:
+    linear-gradient(rgba(23, 79, 61, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(23, 79, 61, 0.045) 1px, transparent 1px);
+  background-size: 26px 26px;
+}
+.bench-card {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+.bench-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 34px rgba(20, 57, 45, 0.09);
+  border-color: #aabbb2;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+}

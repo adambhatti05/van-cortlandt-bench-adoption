@@ -1,0 +1,48 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1789751661818,
+      "tag": "0000_robust_saracen",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1789758407735,
+      "tag": "0001_perfect_lady_deathstrike",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1789775124257,
+      "tag": "0002_slow_nighthawk",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1789776396505,
+      "tag": "0003_tricky_trish_tilby",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1789862778052,
+      "tag": "0004_greedy_legion",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1789960874469,
+      "tag": "0005_romantic_eternity",
+      "breakpoints": true
+    }
+  ]
+}

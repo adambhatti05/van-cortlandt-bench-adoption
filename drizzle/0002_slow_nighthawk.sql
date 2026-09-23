@@ -1,0 +1,1 @@
+ALTER TABLE `adoptions` ADD `term_months` integer DEFAULT 0 NOT NULL;
